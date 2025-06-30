@@ -55,8 +55,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddSingleton<IUserIdProvider, NameIdUserIdProvider>();
-
 // ≈÷«›… CORS
 builder.Services.AddCors(options =>
 {
@@ -106,7 +104,7 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
-builder.Services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, NameUserIdProvider>(); // √Ê  Œ’Ì’ﬂ
+builder.Services.AddSingleton<IUserIdProvider, NameUserIdProvider>(); 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {

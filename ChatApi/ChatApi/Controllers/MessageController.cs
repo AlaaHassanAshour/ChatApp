@@ -34,7 +34,7 @@ namespace ChatApi.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var sender = await _context.Users.FindAsync(userId);
 
-
+            Console.WriteLine("SignalR userId:", userId);
             var message = new Message
             {
                 Content = dto.Content,
@@ -52,7 +52,7 @@ namespace ChatApi.Controllers
             if (dto.ChatGroupId != null)
             {
                 var groupName = dto.ChatGroupId.ToString();
-                await _hubContext.Clients.Group(groupName).SendAsync("ReceiveGroupMessage", userId, dto.Content, message.Timestamp);
+                await _hubContext.Clients.Group(groupName).SendAsync("ReceiveGroupMessage", userId, sender?.Email, dto.Content, message.Timestamp.ToString("o"));
             }
             else if (!string.IsNullOrEmpty(dto.ReceiverId))
             {
@@ -62,9 +62,23 @@ namespace ChatApi.Controllers
                     return NotFound("Receiver not found.");
                 }
                 // رسالة خاصة ترسل إلى المستقبل ومرسلها (حتى المرسل يظهر له نفس الرسالة)
-              
-                await _hubContext.Clients.User(dto.ReceiverId).SendAsync("ReceivePrivateMessage", userId, dto.Content, message.Timestamp);
-                await _hubContext.Clients.User(userId).SendAsync("ReceivePrivateMessage", userId, dto.Content, message.Timestamp);
+
+
+                // قبل: كنت ترسل receiverId بدل senderId للمستقبِل
+                await _hubContext.Clients.User(dto.ReceiverId)
+                                 .SendAsync("ReceivePrivateMessage",
+                                            userId,        // ✅ senderId الصحيح
+                                            sender?.Email,                    // ✅ senderName
+                                            dto.Content,
+                                            message.Timestamp);
+
+                // وبنفس القيم إلى المرسل
+                await _hubContext.Clients.User(userId)
+                                 .SendAsync("ReceivePrivateMessage",
+                                            userId,
+                                            sender?.Email,
+                                            dto.Content,
+                                            message.Timestamp);
             }
             else
             {
