@@ -108,6 +108,14 @@ namespace ChatApi.Controllers
                 .Where(m =>
                     (m.SenderId == userId && m.ReceiverId == receiverId) ||
                     (m.SenderId == receiverId && m.ReceiverId == userId))
+                  .Select(x => new {
+                      x.Id,
+                      x.Content,
+                      x.Timestamp,
+                      x.ChatGroupId,
+                      x.SenderId,
+                      SenderName = x.Sender.Email,
+                  })
                 .OrderBy(m => m.Timestamp)
                 .ToListAsync();
 
@@ -120,6 +128,14 @@ namespace ChatApi.Controllers
         {
             var messages = await _context.Messages
                 .Where(m => m.ChatGroupId == groupId)
+                .Select(x=> new { 
+                x.Id,
+                x.Content,
+                x.Timestamp,
+                x.ChatGroupId,
+                x.SenderId,
+                SenderName=x.Sender.Email,
+                })
                 .OrderBy(m => m.Timestamp)
                 .ToListAsync();
 
