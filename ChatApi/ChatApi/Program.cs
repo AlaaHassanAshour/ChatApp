@@ -18,7 +18,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddDbContext<ChatAppContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ChatDatabase")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ChatDatabase"),
+    sql => sql.EnableRetryOnFailure()
+    ));
 
 // 2. езого гАЕФМи (Identity)
 builder.Services.AddIdentity<AppUser, IdentityRole>()
